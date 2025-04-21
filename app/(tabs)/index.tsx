@@ -1,74 +1,133 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { CalendarPicker } from "@/components/calendarPicker";
+import HourField from "@/components/hourField";
+import { Link } from "expo-router";
+import { useState } from "react";
+import { Text, View, StyleSheet, Button, Alert } from "react-native";
+import { ReadHours, CreateHours, UpdateHours, DeleteHours } from "../database";
+import { Hour } from "@/types/hour.type";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+export default function Index() {
+  let initialIds = 5;
+  // const [newHour, setNewHour] = useState(Hour);
+  let [hors, setHors] = useState<Hour[]>([]);
+  let normal = new Hour(5, "normal");
+  let extra = new Hour(6, "extra");
+  let festivo = new Hour(7, "festivo");
+  let noche = new Hour(8, "noche");
 
-export default function HomeScreen() {
+  const hours = [normal, extra, festivo, noche];
+
+  const createHour = () => {
+    const hours = [];
+    console.log(" create hours pressed");
+    hours.push(normal, extra, festivo, noche);
+
+    console.log(hours);
+
+    CreateHours(hours);
+  };
+
+  const readHour = async () => {
+    console.log("readHoursPressed");
+    let hourss;
+
+    try {
+      hourss = await ReadHours();
+      if (hourss)
+        for (let i = 0; i < hourss.length; i++) console.log(hourss[i]);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  type HourField = {
+    key: number;
+    hours: Hour[];
+  };
+
+  const [hourFields, setHourFields] = useState<HourField[]>([
+    {
+      key: 0,
+      hours: [new Hour()],
+    },
+  ]);
+
+  // still need to fix hourIds not incrementing
+
+  const generateHourFiels = () => {
+    // hoursIds += 1;
+    console.log(initialIds);
+    // typer.forEach((hour) => {
+    const [hoursIds, setHoursIds] = useState(initialIds);
+    setHoursIds((prevId) => prevId + 1);
+
+    const newHourField = { key: hoursIds + 1, hours: hours };
+    setHourFields([...hourFields, newHourField]);
+    // });
+    console.log(hourFields);
+  };
+
+  const removeHourFields = () => {
+    setHourFields([]);
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <View style={styles.container}>
+      <Text>miau</Text>
+
+      <Link href={"./()/about"} style={styles.button}>
+        go to about page
+      </Link>
+
+      <Button title="DBTEST" onPress={() => createHour()}></Button>
+
+      <Button
+        title="Read hours from the db"
+        onPress={() => readHour()}
+      ></Button>
+      <Button
+        title="Update hours from the db"
+        onPress={() => UpdateHours({ id: 1, value: 1, variety: "updated" })}
+      ></Button>
+      <Button
+        title="Delete hours from the db"
+        onPress={() => DeleteHours({ id: 1, value: 1, variety: "" })}
+      ></Button>
+      <View>
+        {hourFields.length > 0 ? (
+          hourFields.map((field) => (
+            <HourField keyId={field.key} hour={field.hours} />
+          ))
+        ) : (
+          <Text>Try adding some fields</Text>
+        )}
+      </View>
+      <Button
+        title="remove all hour fields"
+        onPress={removeHourFields}
+      ></Button>
+
+      <Button
+        title="generate more hour fields"
+        onPress={generateHourFiels}
+      ></Button>
+      <CalendarPicker />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "royalblue",
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  text: {
+    color: "white",
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  button: {
+    fontSize: 20,
+    textDecorationLine: "underline",
+    color: "yellow",
   },
 });

@@ -1,39 +1,37 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import { Stack } from "expo-router";
+import { Button } from "react-native";
 
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
-
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
-
+export default function TabLayout() {
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <Stack>
+      <Stack.Screen name="(tabs)" key={3} options={{ headerShown: false }} />
+    </Stack>
+
+    // <Tabs screenOptions={{ tabBarActiveTintColor: "blue" }}>
+    //       <Tabs.Screen
+    //         name="index"
+    //         options={{
+    //           headerShown: false,
+    //           title: "Miaw",
+    //         }}
+    //       />
+
+    //       <Tabs.Screen
+    //         name="about"
+    //         options={{
+    //           headerShown: false,
+    //           title: "About Mew",
+    //         }}
+    //       />
+    //     </Tabs>
+
+    //     options={{
+    //       headerTitle: "Miaw",
+    //       headerShown: false,
+    //       // navigationBarHidden: true,
+    //     }}
+    //   />
+    //   <Stack.Screen name="about" options={{ headerTitle: "AboutMew" }} />
+    // </Stack>
   );
 }
