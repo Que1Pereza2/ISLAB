@@ -9,7 +9,7 @@ export class Hour{
     /** The type of hour that has been worked.*/
     variety?: string
 
-    constructor(value?:number, variety?:string, id?:number){
+    constructor( id?:number, value?:number, variety?:string){
         this.id = id
         this.value = value
         this.variety = variety

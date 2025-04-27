@@ -7,13 +7,11 @@ import { ReadHours, CreateHours, UpdateHours, DeleteHours } from "../database";
 import { Hour } from "@/types/hour.type";
 
 export default function Index() {
-  let initialIds = 5;
-  // const [newHour, setNewHour] = useState(Hour);
-  let [hors, setHors] = useState<Hour[]>([]);
-  let normal = new Hour(5, "normal");
-  let extra = new Hour(6, "extra");
-  let festivo = new Hour(7, "festivo");
-  let noche = new Hour(8, "noche");
+  const [hoursIds, setHoursIds] = useState(5);
+  let normal = new Hour(1, 5, "normal");
+  let extra = new Hour(2, 6, "extra");
+  let festivo = new Hour(3, 7, "festivo");
+  let noche = new Hour(4, 8, "noche");
 
   const hours = [normal, extra, festivo, noche];
 
@@ -39,31 +37,30 @@ export default function Index() {
       console.log(error);
     }
   };
-  type HourField = {
-    key: number;
-    hours: Hour[];
-  };
-
-  const [hourFields, setHourFields] = useState<HourField[]>([
+  const [hourFields, setHourFields] = useState([
     {
-      key: 0,
-      hours: [new Hour()],
+      key: hoursIds,
+      hours: hours,
     },
   ]);
+  // setHoursIds(hoursIds + 1);
+  const test = () => {
+    hourFields.forEach((field) => {
+      console.log(field);
+      console.log("miau");
+    });
+    return null;
+  };
 
   // still need to fix hourIds not incrementing
 
   const generateHourFiels = () => {
-    // hoursIds += 1;
-    console.log(initialIds);
-    // typer.forEach((hour) => {
-    const [hoursIds, setHoursIds] = useState(initialIds);
-    setHoursIds((prevId) => prevId + 1);
-
-    const newHourField = { key: hoursIds + 1, hours: hours };
+    setHoursIds(hoursIds + 1);
+    const newHourField = { key: hoursIds, hours: hours };
     setHourFields([...hourFields, newHourField]);
-    // });
-    console.log(hourFields);
+    hourFields.forEach((hour) => {
+      console.log(hour.key);
+    });
   };
 
   const removeHourFields = () => {
@@ -79,7 +76,6 @@ export default function Index() {
       </Link>
 
       <Button title="DBTEST" onPress={() => createHour()}></Button>
-
       <Button
         title="Read hours from the db"
         onPress={() => readHour()}
@@ -105,7 +101,7 @@ export default function Index() {
         title="remove all hour fields"
         onPress={removeHourFields}
       ></Button>
-
+      <Button title="Test" onPress={test}></Button>
       <Button
         title="generate more hour fields"
         onPress={generateHourFiels}

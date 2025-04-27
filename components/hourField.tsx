@@ -8,31 +8,11 @@ type TipeProps = {
   hour: Hour[];
 };
 
-export function HourField({ keyId, hour }: TipeProps) {
-  const fieldKey = keyId;
-  const fieldHours = hour;
+export function HourField(props: TipeProps) {
+  const key = props.keyId;
+  const hour = props.hour;
   const [hours, setHours] = React.useState("");
-  const [selectedHourType, setSelectedHourType] = useState<number | undefined>(
-    undefined
-  );
-
-  const miiau = () => {
-    const elements = [];
-    for (let index = 0; index < fieldHours.length; index++) {
-      elements.push(
-        <Picker.Item
-          key={
-            fieldHours[index].id
-              ? fieldHours[index].id
-              : `${fieldKey} - ${index}`
-          }
-          label={fieldHours[index].variety}
-          value={fieldHours[index].value}
-        />
-      );
-    }
-    return elements;
-  };
+  const [selectedHourType, setSelectedHourType] = useState(0);
 
   return (
     <View>
@@ -43,14 +23,17 @@ export function HourField({ keyId, hour }: TipeProps) {
       ></TextInput>
       <Text>{hours}</Text>
       <Picker
+        key={key}
         selectedValue={selectedHourType}
         onValueChange={(itemValue, itemIndex) => {
-          console.log(hour[itemIndex].value);
+          console.log(props.hour[itemIndex].value);
           console.log(hour[itemIndex].variety);
           setSelectedHourType(itemValue);
         }}
       >
-        {miiau()}
+        {hour.map((hour) => (
+          <Picker.Item key={hour.id} label={hour.variety} value={hour.value} />
+        ))}
       </Picker>
     </View>
   );
