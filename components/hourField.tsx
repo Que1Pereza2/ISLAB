@@ -4,13 +4,15 @@ import { View, Text, TextInput } from "react-native";
 import { Hour } from "@/types/hour.type";
 
 type TipeProps = {
-  keyId: number;
+  id: number;
   hour: Hour[];
 };
 
 export function HourField(props: TipeProps) {
-  const key = props.keyId;
+  const id = props.id;
+  // console.log(id);
   const hour = props.hour;
+  // console.log(hour);
   const [hours, setHours] = React.useState("");
   const [selectedHourType, setSelectedHourType] = useState(0);
 
@@ -23,7 +25,7 @@ export function HourField(props: TipeProps) {
       ></TextInput>
       <Text>{hours}</Text>
       <Picker
-        key={key}
+        key={id}
         selectedValue={selectedHourType}
         onValueChange={(itemValue, itemIndex) => {
           console.log(props.hour[itemIndex].value);

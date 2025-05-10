@@ -33,12 +33,14 @@ export const CreateHours = async (hours: Hour[]) => {
       }
 }
 
-export const ReadHours = async() =>{
-  console.log("enter read hours DB")  
+export const ReadHours = async():Promise<Hour[]> =>{
+  // console.log("enter read hours DB")  
   try{
-    return db.getAllAsync("SELECT * FROM Hours");
+    const houraArray = await db.getAllAsync("SELECT * FROM Hours");
+    return (houraArray as Hour[]) ?? [];
   }catch(error){
     console.log("Couldn't read the hours due to : " + error);
+    return [];
   }
 }
 

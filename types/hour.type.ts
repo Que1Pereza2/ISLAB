@@ -1,15 +1,15 @@
 export class Hour{
 
     /**id of the hour entry */
-    id?:number
+    id:number
 
     /** The amount payed per hour of work.*/
-    value?: number
+    value: number
 
     /** The type of hour that has been worked.*/
-    variety?: string
+    variety: string
 
-    constructor( id?:number, value?:number, variety?:string){
+    constructor( id:number, value:number, variety:string){
         this.id = id
         this.value = value
         this.variety = variety

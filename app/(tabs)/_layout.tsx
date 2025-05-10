@@ -8,16 +8,32 @@ export default function Layout() {
         key={1}
         options={{
           headerShown: false,
-          title: "Miaw",
+          title: "Summary",
+        }}
+      />
+      <Tabs.Screen
+        name="insertDay"
+        key={1}
+        options={{
+          headerShown: false,
+          title: "Today",
+        }}
+      />
+      <Tabs.Screen
+        name="viewCalendar"
+        key={1}
+        options={{
+          headerShown: false,
+          title: "Calendar",
         }}
       />
 
       <Tabs.Screen
-        name="about"
+        name="insertHoursAndTax"
         key={2}
         options={{
           headerShown: false,
-          title: "About Mew",
+          title: "Hours and Tax",
         }}
       />
     </Tabs>
