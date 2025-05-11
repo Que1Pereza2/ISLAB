@@ -4,9 +4,7 @@ import * as SQLite from 'expo-sqlite';
 const db = SQLite.openDatabaseSync("hours.db")
 db.execAsync(`DROP TABLE IF EXISTS Hours;
           CREATE TABLE IF NOT EXISTS Hours (id INTEGER PRIMARY KEY NOT NULL, value INTEGER NOT NULL, variety TEXT NOT NULL);
-          INSERT INTO Hours (value, variety) VALUES (5 , 'Normal');
           INSERT INTO Hours (value, variety) VALUES (6 , 'Extra');
-          
           `);
 db.runAsync(
   "INSERT INTO Hours (value, vatiety) VALUES (?, ?)"
@@ -34,7 +32,7 @@ export const CreateHours = async (hours: Hour[]) => {
 }
 
 export const ReadHours = async():Promise<Hour[]> =>{
-  // console.log("enter read hours DB")  
+  console.log("enter read hours DB")  
   try{
     const houraArray = await db.getAllAsync("SELECT * FROM Hours");
     return (houraArray as Hour[]) ?? [];
@@ -81,6 +79,18 @@ export const DeleteHours = async (hourToDelete:Hour) =>{
     console.log(error)
   }finally{
     await deleteHour.finalizeAsync()
+  }
+}
+
+export const DropHours = async ()=>{
+  const dropHours = db.prepareAsync("DELETE FROM Hours; ")
+  try{
+    (await dropHours).executeAsync()
+    console.log('Hours deleted')
+  }catch(error){
+    console.log(error)
+  }finally{
+    (await dropHours).finalizeAsync()
   }
 }
 

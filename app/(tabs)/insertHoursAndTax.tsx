@@ -1,11 +1,20 @@
 import React from "react";
 import { Text, View, Button } from "react-native";
-import { ReadHours, CreateHours, UpdateHours, DeleteHours } from "../database";
-import DataInsertion from "@/components/TaxInsertion";
-import TaxInsertion from "@/components/TaxInsertion";
+import { DropHours, ReadHours } from "../database";
+import TaxInsertion from "@/components/taxInsertion";
+import HourInsertion from "@/components/hourInsertion";
+// import DataInsertion from "@/components/taxInsertion";
+// import TaxInsertion from "@/components/taxInsertion";
 
 export default function InsertHourAndTax() {
   const miau = "tax";
+
+  async function read() {
+    let hours = await ReadHours();
+
+    console.log(hours);
+  }
+
   const createHour = () => {
     const hours = [];
     console.log(" create hours pressed");
@@ -28,7 +37,10 @@ export default function InsertHourAndTax() {
         title="Delete hours from the db"
         onPress={() => DeleteHours({ id: 1, value: 1, variety: "" })}
       ></Button> */}
+      <HourInsertion></HourInsertion>
       <TaxInsertion></TaxInsertion>
+      <Button title="Delete ALL hours" onPress={DropHours}></Button>
+      <Button title="ReadHours" onPress={read}></Button>
     </View>
   );
 }

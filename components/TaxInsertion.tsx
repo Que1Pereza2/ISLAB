@@ -7,8 +7,8 @@ import { View, TextInput, StyleSheet, Text } from "react-native";
 
 export default function TaxInsertion() {
   const [value, setValue] = useState(0.0);
-  const [variety, setVariety] = useState("");
-  const [selectedHour, setSelectedHour] = useState<Hour>();
+  const [name, setName] = useState("");
+  const [selectedHourID, setSelectedHourID] = useState(0);
 
   const [hourArray, setHourArray] = useState<Hour[]>([]);
 
@@ -17,7 +17,6 @@ export default function TaxInsertion() {
       try {
         const data = await ReadHours();
         setHourArray(data);
-        // console.log(hourArray);
       } catch (err) {
         console.log(err);
       }
@@ -25,52 +24,52 @@ export default function TaxInsertion() {
     fetchHours();
   }, []);
 
-  const [hours, setHours] = useState([]);
-
   function insertion() {
-    console.log("tax was inserted", value, " with name ", variety);
+    console.log(
+      `${name} tax was inserted with a value of ${value} and affects 
+      ${hourArray[selectedHourID].variety} hours`
+    );
   }
 
-  function test() {
-    console.log(hourArray);
-  }
-
-  return (
+  return hourArray.length > 0 ? (
     <View>
-      <Text>Insert some Taxes</Text>
       <Text>Name</Text>
       <TextInput
         style={styles.input}
         keyboardType="default"
-        onChangeText={(itemValue) => setVariety(itemValue)}
+        onChangeText={(itemValue) => setName(itemValue)}
       ></TextInput>
+      <Text>Hours afected</Text>
       <Picker
         selectedValue={0}
         onValueChange={(itemValue, itemIndex) => {
+          setSelectedHourID(itemIndex);
           console.log(itemIndex, itemValue);
         }}
       >
-        {
-          // hourArray.length > 0 ? (
-          hourArray.map((hour) => (
-            <Picker.Item
-              key={hour.id}
-              value={hour.value}
-              label={hour.variety}
-            ></Picker.Item>
-          ))
-          // ) : (
-          //   <Text>miau</Text>
-          // )
-        }
+        {hourArray.map((hour) => (
+          <Picker.Item
+            key={hour.id}
+            value={hour.value}
+            label={hour.variety}
+          ></Picker.Item>
+        ))}
       </Picker>
+      <Text>Text percentage</Text>
       <TextInput
         style={styles.input}
         keyboardType="numeric"
-        onChangeText={(itemValue) => setValue(parseFloat(itemValue))}
+        onChangeText={(itemValue) => {
+          let cleanedValue = itemValue.replace(",", ".");
+          setValue(parseFloat(cleanedValue));
+        }}
       ></TextInput>
       <Button title="Save Changes" onPress={insertion}></Button>
       <Button title="read Hours" onPress={ReadHours}></Button>
+    </View>
+  ) : (
+    <View>
+      <Text>First insert some hours!</Text>
     </View>
   );
 }
