@@ -3,22 +3,22 @@ import { Hour } from "./hour.type"
 
 export class Tax{
     /**id of the hour entry */
-    id:number
+    ID:number
     name:string
-    affectsHour:number
+    affects:number
     percentile:number
 
     constructor(id:number,name:string, affectsHour:number,percentile:number){
-        this.id=id;
+        this.ID=id;
         this.name = name;
-        this.affectsHour= affectsHour;
+        this.affects= affectsHour;
         this.percentile = percentile;
     }
 }
 
 const soundTax : Tax = {
-    id:1
+    ID:1
     ,name:"Sound Tax"
-    ,affectsHour: 1
+    ,affects: 1
     ,percentile: 0.01
 }

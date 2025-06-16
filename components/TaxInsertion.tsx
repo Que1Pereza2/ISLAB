@@ -1,34 +1,51 @@
-import { ReadHours } from "@/app/database";
+import { ReadHours, CreateTax, ReadTaxes } from "@/app/database";
 import { Hour } from "@/types/hour.type";
+import { Tax } from "@/types/tax.type";
 import { Picker } from "@react-native-picker/picker";
-import React, { useEffect, useState } from "react";
+import { useFocusEffect } from "expo-router";
+import { useSQLiteContext } from "expo-sqlite";
+import React, { useCallback, useEffect, useState } from "react";
 import { Button } from "react-native";
 import { View, TextInput, StyleSheet, Text } from "react-native";
 
-export default function TaxInsertion() {
+type TaxInsertionProps = {
+  hourArray: Hour[];
+  onInsertSuccess?: () => void;
+};
+
+export default function TaxInsertion({
+  hourArray,
+  onInsertSuccess,
+}: TaxInsertionProps) {
   const [value, setValue] = useState(0.0);
   const [name, setName] = useState("");
   const [selectedHourID, setSelectedHourID] = useState(0);
+  // const [hourArray, setHourArray] = useState<Hour[]>([]);
+  const db = useSQLiteContext();
 
-  const [hourArray, setHourArray] = useState<Hour[]>([]);
-
-  useEffect(() => {
-    const fetchHours = async () => {
-      try {
-        const data = await ReadHours();
-        setHourArray(data);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    fetchHours();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      const fetchHours = () => {
+        try {
+          ReadHours(db).then((data) => {
+            console.log(data);
+            // setHourArray(data);
+          });
+        } catch (err) {
+          console.log(err);
+        }
+      };
+      fetchHours();
+    }, [db])
+  );
 
   function insertion() {
+    CreateTax(db, name, hourArray[selectedHourID].ID, value);
     console.log(
       `${name} tax was inserted with a value of ${value} and affects 
-      ${hourArray[selectedHourID].variety} hours`
+      ${hourArray[selectedHourID].Variety} hours`
     );
+    onInsertSuccess?.();
   }
 
   return hourArray.length > 0 ? (
@@ -40,6 +57,7 @@ export default function TaxInsertion() {
         onChangeText={(itemValue) => setName(itemValue)}
       ></TextInput>
       <Text>Hours afected</Text>
+
       <Picker
         selectedValue={0}
         onValueChange={(itemValue, itemIndex) => {
@@ -49,9 +67,9 @@ export default function TaxInsertion() {
       >
         {hourArray.map((hour) => (
           <Picker.Item
-            key={hour.id}
-            value={hour.value}
-            label={hour.variety}
+            key={hour.ID}
+            value={hour.Value}
+            label={hour.Variety}
           ></Picker.Item>
         ))}
       </Picker>
@@ -65,7 +83,6 @@ export default function TaxInsertion() {
         }}
       ></TextInput>
       <Button title="Save Changes" onPress={insertion}></Button>
-      <Button title="read Hours" onPress={ReadHours}></Button>
     </View>
   ) : (
     <View>

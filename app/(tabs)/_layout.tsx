@@ -13,7 +13,7 @@ export default function Layout() {
       />
       <Tabs.Screen
         name="insertDay"
-        key={1}
+        key={2}
         options={{
           headerShown: false,
           title: "Today",
@@ -21,7 +21,7 @@ export default function Layout() {
       />
       <Tabs.Screen
         name="viewCalendar"
-        key={1}
+        key={3}
         options={{
           headerShown: false,
           title: "Calendar",
@@ -30,7 +30,7 @@ export default function Layout() {
 
       <Tabs.Screen
         name="insertHoursAndTax"
-        key={2}
+        key={4}
         options={{
           headerShown: false,
           title: "Hours and Tax",

@@ -1,15 +1,16 @@
-import { useState } from "react";
+import { memo, useState } from "react";
 import { Text, View } from "react-native";
 import { Calendar, DateData } from "react-native-calendars";
 import Day from "react-native-calendars/src/calendar/day";
 // import { Calendar, LocaleConfig } from "react-native-calendars";
 
-export const CalendarPicker = () => {
-  const [currentDay, setCurrentDay] = useState("");
+type pickerProps = {
+  onUpdate: (currentDay: string) => void;
+  selectedDay?: string;
+};
 
-  const displayDay = () => {
-    return <Text>{currentDay.toString()}</Text>;
-  };
+export const CalendarPicker = memo(({ onUpdate, selectedDay }: pickerProps) => {
+  const [currentDay, setCurrentDay] = useState("");
 
   return (
     <View>
@@ -19,12 +20,14 @@ export const CalendarPicker = () => {
           currentDay: { selected: true, marked: true, selectedColor: "blue" },
         }}
         onDayPress={(day: DateData) => {
-          setCurrentDay(day.dateString);
-          console.log(day);
+          // setCurrentDay(day.dateString);
+          onUpdate(day.dateString);
         }}
       />
 
-      <View>{displayDay()}</View>
+      <View>
+        <Text>date {selectedDay}</Text>
+      </View>
     </View>
   );
-};
+});

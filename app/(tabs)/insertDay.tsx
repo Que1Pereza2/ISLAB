@@ -1,60 +1,118 @@
 import { Hour } from "@/types/hour.type";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
-import { ReadHours } from "../database";
+import { CreateDay, GetHourByID, ReadHours } from "../database";
 import HourField from "@/components/hourField";
 import { CalendarPicker } from "@/components/calendarPicker";
+import { useSQLiteContext } from "expo-sqlite";
+import { useFocusEffect } from "expo-router";
+
+// TODO: Need to find a away to return the data from the child components without adding a button because it gets confusing.
+
+type hourFieldProp = {
+  key: number;
+  hours: Hour[];
+};
 
 export default function InsertDay() {
-  const [hoursIds, setHoursIds] = useState(5);
+  const db = useSQLiteContext();
+  const [currentDay, setCurrentDay] = useState("");
+  const [count, setCount] = useState(0);
+  const [dayTotal, setDayTotal] = useState(0.1);
+  const [dayTotalAfterTax, setDayTotalAfterTax] = useState(0.1);
+  const [hourVariety, setHourVariety] = useState<Hour>();
 
-  let normal = new Hour(1, 5, "normal");
-  let extra = new Hour(2, 6, "extra");
-  let festivo = new Hour(3, 7, "festivo");
-  let noche = new Hour(4, 8, "noche");
+  const [hourArray, setHourArray] = useState<Hour[]>([]);
+  const [hourFields, setHourFields] = useState<hourFieldProp[]>([]);
 
-  const hours = [normal, extra, festivo, noche];
+  useEffect(() => {
+    console.log("Selected Date:", currentDay);
+  }, [currentDay]);
 
-  const readHour = async () => {
-    console.log("readHoursPressed");
-    let hourss;
+  useFocusEffect(
+    useCallback(() => {
+      try {
+        ReadHours(db).then((hours) => {
+          setHourArray(hours);
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }, [db])
+  );
 
-    try {
-      hourss = await ReadHours();
-      if (hourss)
-        for (let i = 0; i < hourss.length; i++) console.log(hourss[i]);
-    } catch (error) {
-      console.log(error);
+  const generateHourFiels = () => {
+    if (hourArray.length > 0) {
+      const newHourField = { key: hourFields.length, hours: hourArray };
+      setHourFields([...hourFields, newHourField]);
+    } else {
+      const newHourField = { key: 1, hours: hourArray };
+      setHourFields([...hourFields, newHourField]);
     }
   };
 
-  const [hourFields, setHourFields] = useState([
-    {
-      key: 4,
-      hours: hours,
-    },
-  ]);
-
-  const generateHourFiels = () => {
-    setHoursIds(hoursIds + 1);
-    const newHourField = { key: hoursIds, hours: hours };
-    setHourFields([...hourFields, newHourField]);
+  const createDay = () => {
+    if (hourVariety)
+      CreateDay(
+        db,
+        currentDay,
+        count,
+        dayTotal,
+        dayTotalAfterTax,
+        hourVariety?.ID
+      ).then(() => {
+        console.log(
+          "Day created on ",
+          currentDay,
+          " with ",
+          count,
+          " hours, ",
+          dayTotal,
+          " as the total for the day, ",
+          dayTotalAfterTax,
+          " as the day total after taxes, ",
+          "of the ",
+          hourVariety,
+          " variety"
+        );
+      });
   };
 
   const removeHourFields = () => {
     setHourFields([]);
   };
 
+  const dateUpdate = useCallback((date: string) => {
+    setCurrentDay(date);
+  }, []);
+
+  const dayUpdate = useCallback(
+    async (day: {
+      count: number;
+      dayTotal: number;
+      dayTotalAfterTax: number;
+      hourVariety: number;
+    }) => {
+      setCount(day.count);
+      setDayTotal(day.dayTotal);
+      setDayTotalAfterTax(day.dayTotalAfterTax);
+      let hour = await GetHourByID(db, day.hourVariety);
+      setHourVariety(hour);
+    },
+    []
+  );
+
   return (
     <View style={styles.container}>
-      <Button
-        title="Read hours from the db"
-        onPress={() => readHour()}
-      ></Button>
       <View>
         {hourFields.length > 0 ? (
           hourFields.map((field) => (
-            <HourField key={field.key} id={field.key} hour={field.hours} />
+            <HourField
+              key={field.key}
+              id={field.key}
+              hour={field.hours}
+              day={dayUpdate}
+            />
           ))
         ) : (
           <Text>Try adding some fields</Text>
@@ -68,7 +126,9 @@ export default function InsertDay() {
         title="generate more hour fields"
         onPress={generateHourFiels}
       ></Button>
-      <CalendarPicker />
+      <Button title="Insert day" onPress={createDay}></Button>
+      <CalendarPicker onUpdate={dateUpdate} selectedDay={currentDay} />
+      <Text>Current Day: {currentDay}</Text>
     </View>
   );
 }
