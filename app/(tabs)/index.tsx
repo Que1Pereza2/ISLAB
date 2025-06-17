@@ -1,32 +1,27 @@
 import { useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
-import { Text, View, StyleSheet, FlatList } from "react-native";
-import { Hour } from "@/types/hour.type";
-import {
-  SQLiteDatabase,
-  SQLiteProvider,
-  useSQLiteContext,
-  openDatabaseSync,
-} from "expo-sqlite";
-import { ReadHours } from "../database";
-
-/* 
-  TODO: This class needs to pull from the database the hours worked this month
-and the taxes that apply to each one of them, after that it needs to calculate 
-raw income, the net income and the taxed amount.
- */
+import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
+import { useSQLiteContext } from "expo-sqlite";
+import { DeleteDay, ReadDay } from "../database";
+import { Day } from "@/types/day.type";
 
 export default function Index() {
   const db = useSQLiteContext();
-  const [hours, setHours] = useState<Hour[]>([]);
-  const [wage, setWage] = useState(0);
+  const [days, setDays] = useState<Day[]>([]);
+  const [today] = useState(new Date());
+  let month = "0";
+  if (today.getMonth() < 9) month = "0" + (today.getMonth() + 1);
+  else month = today.getMonth().toString();
+
+  const year = today.getFullYear();
 
   const fetchHours = useCallback(() => {
+    const todayDate = today.toISOString().split("T");
     try {
-      ReadHours(db)
+      ReadDay(db, todayDate[0])
         .then((results) => {
           console.log(results);
-          setHours(results);
+          setDays(results);
         })
         .catch((err) => {
           console.error("Database error:", err);
@@ -39,35 +34,42 @@ export default function Index() {
   useFocusEffect(
     useCallback(() => {
       fetchHours();
-    }, [fetchHours])
+    }, [db])
   );
 
-  const renderItem = ({ item }: { item: Hour }) => (
-    <View>
-      <Text style={styles.list}>
-        {item.Value}: {item.Variety}
-        {calculateWage()}
-      </Text>
-    </View>
-  );
+  const deleteDays = () => {
+    DeleteDay(db);
+    fetchHours();
+  };
 
-  function calculateWage() {
-    let sum = wage;
-    hours.forEach((hour) => {
-      sum = wage + hour.Value;
-      // setWage(sum);
-    });
-    return sum;
-  }
+  const monthlySummary = days.reduce(
+    (summary, day) => ({
+      gross: summary.gross + day.dayTotal,
+      net: summary.net + day.dayTotalAfterTax,
+      taxed: summary.taxed + (day.dayTotal - day.dayTotalAfterTax),
+    }),
+    { gross: 0, net: 0, taxed: 0 }
+  );
 
   return (
     <View style={styles.container}>
-      <FlatList
-        style={styles.list}
-        data={hours}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.ID.toString()}
-      />
+      <View style={styles.summaryContainer}>
+        <Text style={styles.summaryTitle}>
+          Monthly Summary ({month}/{year})
+        </Text>
+        <Text style={styles.summaryText}>
+          Net Income: {monthlySummary.net.toFixed(2)}€
+        </Text>
+        <Text style={styles.summaryText}>
+          Taxes Paid: {monthlySummary.taxed.toFixed(2)}€
+        </Text>
+        <Text style={styles.summaryText}>
+          Gross Income: {monthlySummary.gross.toFixed(2)}€
+        </Text>
+      </View>
+      <TouchableOpacity style={styles.summaryContainer} onPress={deleteDays}>
+        <Text style={styles.summaryText}>Delete Days</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -95,4 +97,26 @@ const styles = StyleSheet.create({
   headerContainer: {},
   contentContainer: {},
   headerText: {},
+  summaryContainer: {
+    backgroundColor: "white",
+    padding: 16,
+    borderRadius: 8,
+    marginBottom: 16,
+    elevation: 2,
+  },
+  summaryTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 8,
+  },
+  summaryText: {
+    fontSize: 16,
+    marginVertical: 4,
+  },
+  dayItem: {
+    backgroundColor: "white",
+    padding: 12,
+    marginBottom: 8,
+    borderRadius: 4,
+  },
 });
