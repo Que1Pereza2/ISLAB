@@ -5,16 +5,24 @@ import { useSQLiteContext } from "expo-sqlite";
 import { DeleteDay, ReadDay } from "../database";
 import { Day } from "@/types/day.type";
 
+// This is the screen that appears when the app starts, it shows a monthly
+// overview of the current month
 export default function Index() {
+  // Expo hooks
   const db = useSQLiteContext();
   const [days, setDays] = useState<Day[]>([]);
   const [today] = useState(new Date());
+
+  // This function here makes the date more pleasing to read
   let month = "0";
   if (today.getMonth() < 9) month = "0" + (today.getMonth() + 1);
   else month = today.getMonth().toString();
 
+  // The year that the app will search for in the database
   const year = today.getFullYear();
 
+  // This function reads all the days from the database that match the current
+  //  month and year
   const fetchHours = useCallback(() => {
     const todayDate = today.toISOString().split("T");
     try {
@@ -31,17 +39,22 @@ export default function Index() {
     }
   }, [db]);
 
+  // This funtion is executed when the tab is selected to be shown and calls
+  // the funtion that pulls the days from the database
   useFocusEffect(
     useCallback(() => {
       fetchHours();
     }, [db])
   );
 
+  // This function deletes all the days from the database and refreshes
+  // the days list
   const deleteDays = () => {
     DeleteDay(db);
     fetchHours();
   };
 
+  // this constant calculates money earned troughout the month
   const monthlySummary = days.reduce(
     (summary, day) => ({
       gross: summary.gross + day.dayTotal,
@@ -67,6 +80,7 @@ export default function Index() {
           Gross Income: {monthlySummary.gross.toFixed(2)}€
         </Text>
       </View>
+
       <TouchableOpacity style={styles.summaryContainer} onPress={deleteDays}>
         <Text style={styles.summaryText}>Delete Days</Text>
       </TouchableOpacity>

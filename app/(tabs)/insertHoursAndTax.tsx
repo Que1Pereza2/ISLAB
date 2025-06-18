@@ -8,13 +8,16 @@ import { useFocusEffect } from "expo-router";
 import { Hour } from "@/types/hour.type";
 import { Tax } from "@/types/tax.type";
 
+// This screen shows up when the insert hour and tax is tab selected
 export default function InsertHourAndTax() {
+  // react hooks
   const db = useSQLiteContext();
   const [hoursArray, setHourArray] = useState<Hour[]>([]);
   const [taxArray, setTaxArray] = useState<Tax[]>([]);
   const [showHourModal, setShowHourModal] = useState(false);
   const [showTaxModal, setShowTaxModal] = useState(false);
 
+  // This function reads the hours from the database and inserts them in the array
   const readHours = useCallback(() => {
     ReadHours(db).then((results) => {
       setHourArray(results);
@@ -22,11 +25,13 @@ export default function InsertHourAndTax() {
     });
   }, [db]);
 
+  // This function drops the hours from the database
   const dropHours = useCallback(() => {
     DropHours(db);
     readHours();
   }, [db]);
 
+  // this function pulls the taxes from the database and insers the in the array
   const readTaxes = useCallback(() => {
     ReadTaxes(db).then((taxes) => {
       setTaxArray(taxes);
@@ -34,11 +39,14 @@ export default function InsertHourAndTax() {
     });
   }, [db]);
 
+  // This function deletes all the taxes from the database
   const dropTaxes = useCallback(() => {
     DeleteAllTaxes(db);
     readTaxes();
   }, [db]);
 
+  // this function pulls the hours and taxes from the database when the
+  // screen is in focus
   useFocusEffect(
     useCallback(() => {
       readHours();
@@ -46,13 +54,9 @@ export default function InsertHourAndTax() {
     }, [readHours, readTaxes, dropHours])
   );
 
-  const refreshAllData = useCallback(async () => {
-    await Promise.all([readHours(), readTaxes()]);
-  }, [readHours, readTaxes]);
-
   return (
     <View style={styles.container}>
-      {/* Tax List Section */}
+      {/* This here shows all the that are in the database */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Taxes</Text>
         {taxArray.length > 0 ? (
@@ -64,6 +68,7 @@ export default function InsertHourAndTax() {
         ) : (
           <Text style={styles.noItemsText}>No taxes</Text>
         )}
+
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => setShowTaxModal(true)}
@@ -72,8 +77,7 @@ export default function InsertHourAndTax() {
         </TouchableOpacity>
       </View>
 
-      {/* Hour Insertion Modal */}
-
+      {/* This is the modal to insert hours */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -99,7 +103,7 @@ export default function InsertHourAndTax() {
         </View>
       </Modal>
 
-      {/* Tax Insertion Modal */}
+      {/* This modal is for the Taxes insetion */}
 
       <Modal
         animationType="slide"
@@ -127,6 +131,7 @@ export default function InsertHourAndTax() {
         </View>
       </Modal>
 
+      {/* View container for the butotns */}
       <View style={styles.actionsContainer}>
         <TouchableOpacity
           style={styles.addButton}
@@ -134,7 +139,7 @@ export default function InsertHourAndTax() {
         >
           <Text style={styles.buttonText}>Add Hours</Text>
         </TouchableOpacity>
-
+        {/* debugging buttons */}
         <View style={styles.utilityButtons}>
           <TouchableOpacity style={styles.utilityButton} onPress={dropHours}>
             <Text style={styles.buttonText}>Delete ALL hours</Text>

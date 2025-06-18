@@ -5,6 +5,7 @@ import { Hour } from "@/types/hour.type";
 import { GeTaxFor } from "../app/database";
 import { useSQLiteContext } from "expo-sqlite";
 
+// Props that the class receives
 type TipeProps = {
   id: number;
   hour: Hour[];
@@ -18,19 +19,22 @@ type TipeProps = {
 };
 
 export function HourField({ id, hour, day }: TipeProps) {
+  // react hooks
   const db = useSQLiteContext();
   const [count, setCount] = useState(0);
   const [selectedHour, setHourF] = useState<Hour>();
   const [hours] = useState("");
-
   const [selectedHourType] = useState(0);
 
+  // this effect sets the hour selected to the hook
   useEffect(() => {
     if (hour.length > 0 && selectedHourType !== null) {
       setHourF(hour[selectedHourType]);
     }
   }, [selectedHourType, hour]);
 
+  // This effect calculates the day total and the total after tax, after that
+  // it sends it to the parent
   useEffect(() => {
     if (selectedHour && count) {
       const returnData = async () => {

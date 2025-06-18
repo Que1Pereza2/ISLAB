@@ -1,20 +1,21 @@
-import { CreateHours, ReadHours, ReadTaxes } from "@/app/database";
-import { Hour } from "@/types/hour.type";
-import { Picker } from "@react-native-picker/picker";
+import { CreateHours } from "@/app/database";
 import { useSQLiteContext } from "expo-sqlite";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Button } from "react-native";
-import { View, TextInput, StyleSheet, Text } from "react-native";
+import { View, TextInput, Text } from "react-native";
 
 type HourInsertionProps = {
   onInsertSuccess?: () => void;
 };
 
 export default function HourInsertion({ onInsertSuccess }: HourInsertionProps) {
+  // React hooks
   const [hourValue, setHourValue] = useState(0.0);
   const [hourVariety, setHourVariety] = useState("");
   const db = useSQLiteContext();
 
+  // This funtion inserts the hours in the database, resets the value and
+  // sends the hour to the parent.
   async function submit() {
     try {
       await CreateHours(db, hourVariety, hourValue);

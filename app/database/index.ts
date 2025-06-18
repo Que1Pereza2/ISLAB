@@ -2,7 +2,6 @@ import { Day } from '@/types/day.type';
 import { Hour } from '@/types/hour.type';
 import { Tax } from '@/types/tax.type';
 import * as SQLite from 'expo-sqlite';
-import { SQLiteAnyDatabase } from 'expo-sqlite/build/NativeStatement';
 
 export const CreateHours = async (db:SQLite.SQLiteDatabase, hourVariety:string, hourValue:number) => {
   console.log("enters the function")
@@ -191,7 +190,6 @@ export const ReadDay = async(db: SQLite.SQLiteDatabase, dayMonth:string): Promis
   db.execAsync("Insert into Day(dayMonth, count, dayTotal, dayTotalAfterTax, hourVariety) VALUES('2025-06-15',8,129,120,18)")
   const dayArray = await db.prepareAsync('SELECT * FROM Day WHERE substr($dayMonth, 0, 5) = substr($dayMonth, 0, 5) and substr($dayMonth, 6, 2) = substr($dayMonth, 6, 2)')
   try{
-    // TODO: create a query that filters the entries by month, might as well group them by dayMonth to get the full sum.
     const result = await dayArray.executeAsync({$dayMonth:dayMonth});
     const dayList = await result.getAllAsync();
     return dayList as Day[] ?? [];

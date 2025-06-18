@@ -1,7 +1,7 @@
 import { Day } from "@/types/day.type";
 import { Hour } from "@/types/hour.type";
 import { useFocusEffect } from "expo-router";
-import { SQLiteDatabase, useSQLiteContext } from "expo-sqlite";
+import { useSQLiteContext } from "expo-sqlite";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
@@ -15,6 +15,7 @@ import { Calendar, DateData } from "react-native-calendars";
 import { getAllDays, ReadHours } from "../database";
 import { MarkedDates } from "react-native-calendars/src/types";
 
+// this is the screen that shows the calendar
 const ViewCalendar = () => {
   const db = useSQLiteContext();
   const [selectedDate, setSelectedDate] = useState("");
@@ -22,6 +23,8 @@ const ViewCalendar = () => {
   const [hours, setHours] = useState<Hour[]>([]);
   const [workedDates, setWorkedDates] = useState<MarkedDates>({});
 
+  // This function pulls the days and the hours from the database and
+  // inserts them in the array
   useFocusEffect(
     useCallback(() => {
       const getDbData = async () => {
@@ -36,6 +39,8 @@ const ViewCalendar = () => {
     }, [db])
   );
 
+  // this function parses the data form the database and assigns them keys so
+  // they can be searched by date
   const daysByDate: Record<string, Day[]> = {};
   days.forEach((day) => {
     if (!daysByDate[day.dayMonth]) {
@@ -46,6 +51,8 @@ const ViewCalendar = () => {
 
   const workedDays: MarkedDates = {};
 
+  // This effect creates the array from where the calendar pulls the data with
+  // the necesarry props
   useEffect(() => {
     Object.entries(daysByDate).forEach(([dateString, dayEntries]) => {
       const totalHours = dayEntries.reduce((sum, day) => sum + day.count, 0);
@@ -59,6 +66,7 @@ const ViewCalendar = () => {
     setWorkedDates(workedDates);
   }, []);
 
+  // this function sums all the hours workes for a determined day
   const getDaySummary = (dateString: string): string[] => {
     const day = days.find((day) => day.dayMonth === dateString);
     if (day) return [`Worked: ${day.count} hours`];
@@ -70,6 +78,7 @@ const ViewCalendar = () => {
       <Calendar
         enableSwipeMonths
         markerDates={workedDates}
+        // this option allows to configure the cells of the calendar
         dayComponent={({
           date,
           state,
@@ -90,7 +99,7 @@ const ViewCalendar = () => {
                 !worked && workedDates[dateStr] && styles.notWorkedDay,
               ]}
             >
-              {/* This here renders the individual cells in the calendar */}
+              {/* This creates the individual calendar cells */}
               <Text
                 style={[
                   styles.dayText,
@@ -99,6 +108,7 @@ const ViewCalendar = () => {
               >
                 {date.day}
               </Text>
+
               {words.slice(0, 2).map((word, index) => (
                 <Text key={index} style={styles.wordText} numberOfLines={1}>
                   {word}
@@ -108,6 +118,7 @@ const ViewCalendar = () => {
           );
         }}
       />
+
       {/* This here is the pop-up that shows when a date is pressed. */}
       <Modal visible={!!selectedDate} transparent animationType="fade">
         <View style={styles.modalBackdrop}>

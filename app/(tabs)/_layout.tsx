@@ -2,6 +2,8 @@ import { Tabs } from "expo-router";
 
 export default function Layout() {
   return (
+    // The second file where the app enters and sets up the tabs details that
+    // are showed on the bottom side of the app
     <Tabs screenOptions={{ tabBarActiveTintColor: "blue" }}>
       <Tabs.Screen
         name="index"
